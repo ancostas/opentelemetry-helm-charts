@@ -148,6 +148,8 @@ receivers:
 
 exporters:
   datadog:
+    host_metadata:
+      tags: [env:otel]
     api:
       key: "$DD_API_KEY"
 
