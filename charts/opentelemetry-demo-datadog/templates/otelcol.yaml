@@ -32,6 +32,7 @@ spec:
       serviceAccount: {{ include "otel-demo.name" . }}
       containers:
       - image: otel/opentelemetry-collector-contrib:{{ $.Values.image.otelcolversion }}
+        imagePullPolicy: Always
         name: otel-col
         env:
           - name: DD_API_KEY
@@ -68,10 +69,22 @@ spec:
         volumeMounts:
           - mountPath: /etc/config
             name: config
+          - name: varlogpods
+            mountPath: /var/log/pods
+            readOnly: true
+          - name: varlibdockercontainers
+            mountPath: /var/lib/docker/containers
+            readOnly: true
       volumes:
         - configMap:
             name: {{ include "otel-demo.name" . }}-{{.name}}-config
           name: config
+        - name: varlogpods
+          hostPath:
+            path: /var/log/pods
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
 ---
 {{- end }}
 {{- end }}

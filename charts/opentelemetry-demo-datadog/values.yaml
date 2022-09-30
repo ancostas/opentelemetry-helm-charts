@@ -2,9 +2,10 @@ deployMode: "deployment"
 useOperator: false
 
 image:
-  repository:  otel/demo
-  otelcolversion: 0.59.0
+  repository:  dineshgurumurthydd/oteldemo
+  otelcolversion: 0.61.0
   pullSecrets: []
+  pullPolicy: Always
 
 observability:
   otelcol:
@@ -170,6 +171,11 @@ components:
     podAnnotations: {}
     #  instrumentation.opentelemetry.io/inject-sdk: "true"
 
+  quoteService:
+    enabled: true
+    servicePort: 8080
+    podAnnotations: {}
+    #  instrumentation.opentelemetry.io/inject-sdk: "true"
   recommendationService:
     enabled: true
     servicePort: 8080
