@@ -31,7 +31,7 @@ spec:
     spec:
       serviceAccount: {{ include "otel-demo.name" . }}
       containers:
-      - image: otel/opentelemetry-collector-contrib:{{ $.Values.image.otelcolversion }}
+      - image: otel/opentelemetry-collector-contrib:{{ $.Values.default.image.otelcolversion }}
         imagePullPolicy: Always
         name: otel-col
         env:

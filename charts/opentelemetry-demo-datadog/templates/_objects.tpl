@@ -19,17 +19,17 @@ spec:
         {{- toYaml .podAnnotations | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .imageConfig.pullSecrets }}
+      {{- if or .defaultValues.image.pullSecrets .imageOverride.pullSecrets }}
       imagePullSecrets:
-        {{- toYaml .imageConfig.pullSecrets | nindent 8}}
+        {{- .imageOverride.pullSecrets | default .defaultValues.image.pullSecrets | toYaml | nindent 8}}
       {{- end }}
       {{- with .serviceAccountName }}
       serviceAccountName: {{ .serviceAccountName}}
       {{- end }}
       containers:
         - name: {{ .name }}
-          image: {{ .image | default (printf "%s:v%s-%s" .imageConfig.repository .Chart.AppVersion (.name | replace "-" "" | lower)) }}
-          imagePullPolicy : {{ .imageConfig.pullPolicy }}
+          image: '{{ .imageOverride.repository | default .defaultValues.image.repository }}:{{ .imageOverride.tag | default (printf "v%s-%s" (default .Chart.AppVersion .defaultValues.image.tag) (replace "-" "" .name)) }}'
+          imagePullPolicy: {{ .imageOverride.pullPolicy | default .defaultValues.image.pullPolicy }}
           {{- if or .ports .servicePort}}
           ports:
             {{- include "otel-demo.pod.ports" . | nindent 10 }}
@@ -65,4 +65,3 @@ spec:
     {{- include "otel-demo.selectorLabels" . | nindent 4 }}
 {{- end}}
 {{- end}}
-
