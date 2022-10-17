@@ -19,16 +19,17 @@ spec:
         {{- toYaml .podAnnotations | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .imageConfig.pullSecrets }}
+      {{- if or .defaultValues.image.pullSecrets .imageOverride.pullSecrets }}
       imagePullSecrets:
-        {{- toYaml .imageConfig.pullSecrets | nindent 8}}
+        {{- .imageOverride.pullSecrets | default .defaultValues.image.pullSecrets | toYaml | nindent 8}}
       {{- end }}
       {{- with .serviceAccountName }}
       serviceAccountName: {{ .serviceAccountName}}
       {{- end }}
       containers:
         - name: {{ .name }}
-          image: {{ .image | default (printf "%s:v%s-%s" .imageConfig.repository .Chart.AppVersion (.name | replace "-" "" | lower)) }}
+          image: '{{ .imageOverride.repository | default .defaultValues.image.repository }}:{{ .imageOverride.tag | default (printf "v%s-%s" (default .Chart.AppVersion .defaultValues.image.tag) (replace "-" "" .name)) }}'
+          imagePullPolicy: {{ .imageOverride.pullPolicy | default .defaultValues.image.pullPolicy }}
           {{- if or .ports .servicePort}}
           ports:
             {{- include "otel-demo.pod.ports" . | nindent 10 }}
@@ -64,35 +65,3 @@ spec:
     {{- include "otel-demo.selectorLabels" . | nindent 4 }}
 {{- end}}
 {{- end}}
-
-{{- define "otel-demo.otelcol.config" -}}
-receivers:
-  otlp:
-    protocols:
-      grpc:
-      http:
-exporters:
-  {{- if .Values.observability.jaeger.enabled }}
-  jaeger:
-    endpoint: "${JAEGER_ADDR}"
-    tls:
-      insecure: true
-  {{- end}}
-  logging:
-
-processors:
-  batch:
-
-service:
-  pipelines:
-    traces:
-      receivers:
-        - otlp
-      processors:
-        - batch
-      exporters:
-        - logging
-        {{- if .Values.observability.jaeger.enabled }}
-        - jaeger
-        {{- end}}
-{{- end }}

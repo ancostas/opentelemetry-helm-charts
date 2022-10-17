@@ -1,4 +1,4 @@
-{{- if and .Values.admissionWebhooks.enabled .Values.admissionWebhooks.certManager.enabled }}
+{{- if and .Values.admissionWebhooks.create .Values.admissionWebhooks.certManager.enabled }}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -11,7 +11,7 @@ metadata:
 spec:
   containers:
     - name: wget
-      image: busybox
+      image: "{{ .Values.testFramework.image.repository }}:{{ .Values.testFramework.image.tag }}"
       env:
         - name: CERT_MANAGER_CLUSTERIP
           value: "cert-manager-webhook"
