@@ -23,7 +23,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 59fbf04012114dd6c404237dc0e7ea8a88470269b81d65a975360203004fb1ef
+        checksum/config: 03ae28054f184189b8d061c21691f51d1dcefd78533dc6bdc8ba3f57b6184652
         
       labels:
         app.kubernetes.io/name: otelcol
@@ -80,7 +80,7 @@ spec:
           resources:
             limits:
               cpu: 256m
-              memory: 512Mi
+              memory: 100Mi
           volumeMounts:
             - mountPath: /conf
               name: opentelemetry-collector-configmap

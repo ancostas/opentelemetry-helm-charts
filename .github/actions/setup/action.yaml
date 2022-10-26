@@ -21,5 +21,9 @@ runs:
       uses: helm/chart-testing-action@v2.3.0
 
     - name: Create kind cluster
-      uses: helm/kind-action@v1.3.0
+      uses: helm/kind-action@v1.4.0
       if: ${{ inputs.create-kind-cluster == 'true' }}
+
+    - name: Add Dependencies
+      shell: bash
+      run: helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
