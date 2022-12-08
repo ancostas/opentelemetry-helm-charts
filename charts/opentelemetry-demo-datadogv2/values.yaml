@@ -1,0 +1,42 @@
+ingest: false
+opentelemetry-demo:
+  observability:
+    jaeger:
+      enabled: false
+    grafana:
+      enabled: false
+    prometheus:
+      enabled: false
+  components:
+    adService: &standard_override
+      envOverrides:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://$(HOST_IP):4317'
+    cartService: *standard_override
+    checkoutService: *standard_override
+    currencyService: *standard_override
+    featureflagService: *standard_override
+    ffsPostgres: *standard_override
+    loadgenerator: *standard_override
+    paymentService: *standard_override
+    productCatalogService: *standard_override
+    recommendationService: *standard_override
+    quoteService: *standard_override
+    emailService:
+      envOverrides:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://$(HOST_IP):4317'
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: 'http://$(HOST_IP):4318/v1/traces'
+    frontend:
+      envOverrides:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://$(HOST_IP):4317'
+        - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: 'http://$(HOST_IP):4318/v1/traces'
+    shippingService:
+      envOverrides:
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: 'http://$(HOST_IP):4317'
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: 'http://$(HOST_IP):4317'
