@@ -1,5 +1,40 @@
-ingest: false
+collector-a:
+  mode: "deployment"
+# uncomment and provide config for collector a
+#  config:
+collector-b:
+  mode: "deployment"
+# uncomment and provide config for collector b
+#  config:
 opentelemetry-demo:
+  opentelemetry-collector:
+    config:
+      exporters:
+        otlp/a:
+          endpoint: '{{ include "otel-demo.name" . }}-collector-a:4317'
+          tls:
+            insecure: true
+        otlp/b:
+          endpoint: '{{ include "otel-demo.name" . }}-collector-b:4317'
+          tls:
+            insecure: true
+      service:
+        pipelines:
+          traces: &basic
+            receivers: [ otlp ]
+            processors: [ batch ]
+            exporters: [ logging, otlp/a, otlp/b ]
+          metrics: *basic
+          logs: *basic
+  default:
+    envOverrides:
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: >-
+          service.name=$(OTEL_SERVICE_NAME),
+          k8s.namespace.name=$(OTEL_K8S_NAMESPACE),
+          k8s.node.name=$(OTEL_K8S_NODE_NAME),
+          k8s.pod.name=$(OTEL_K8S_POD_NAME),
+          deployment.environment=opentelemetry-demo
   observability:
     jaeger:
       enabled: false
@@ -8,35 +43,7 @@ opentelemetry-demo:
     prometheus:
       enabled: false
   components:
-    adService: &standard_override
+    loadgenerator:
       envOverrides:
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: 'http://$(HOST_IP):4317'
-    cartService: *standard_override
-    checkoutService: *standard_override
-    currencyService: *standard_override
-    featureflagService: *standard_override
-    ffsPostgres: *standard_override
-    loadgenerator: *standard_override
-    paymentService: *standard_override
-    productCatalogService: *standard_override
-    recommendationService: *standard_override
-    quoteService: *standard_override
-    emailService:
-      envOverrides:
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: 'http://$(HOST_IP):4317'
-        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-          value: 'http://$(HOST_IP):4318/v1/traces'
-    frontend:
-      envOverrides:
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: 'http://$(HOST_IP):4317'
-        - name: PUBLIC_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-          value: 'http://$(HOST_IP):4318/v1/traces'
-    shippingService:
-      envOverrides:
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: 'http://$(HOST_IP):4317'
-        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-          value: 'http://$(HOST_IP):4317'
+        - name: LOCUST_HEADLESS
+          value: "true"
